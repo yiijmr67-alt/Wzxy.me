@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wzxy.me - KHQR & Bio Link</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #090b10;
+      --card: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #e11d48;
+      --accent-blue: #2563eb;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      background: radial-gradient(circle at top, #1e1b4b 0%, var(--bg) 60%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+    .container {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .glass-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    .profile { text-align: center; }
+    .avatar {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-blue));
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 800;
+      box-shadow: 0 8px 24px rgba(225, 29, 72, 0.35);
+    }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .bio { color: var(--muted); font-size: 14px; line-height: 1.5; margin-bottom: 18px; }
+    .links-grid { display: grid; gap: 10px; }
+    .link-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: 0.2s;
+    }
+    .link-btn:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-2px); }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fb7185;
+    }
+    .bank-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    .row { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-secondary {
+      width: 100%;
+      padding: 11px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .qr-wrapper {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 18px;
+      padding: 20px;
+      margin-top: 16px;
+      text-align: center;
+    }
+    .qr-header {
+      background: #e11d48;
+      color: #fff;
+      width: 100%;
+      padding: 8px;
+      border-radius: 10px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    .qr-amount { font-size: 22px; font-weight: 800; margin-bottom: 12px; color: #0f172a; }
+    #qrcode { margin: 0 auto 12px; }
+    .url-box {
+      margin-top: 12px;
+      padding: 10px;
+      background: #0f172a;
+      border: 1px dashed #475569;
+      border-radius: 10px;
+      font-size: 12px;
+      word-break: break-all;
+      color: #38bdf8;
+      display: none;
+    }
+    .edit-panel { display: none; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
+    .footer-bar { text-align: center; font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- ផ្នែកព័ត៌មានផ្ទាល់ខ្លួន និងតំណភ្ជាប់ -->
+    <div class="glass-card profile">
+      <div class="avatar" id="avatarText">W</div>
+      <h1 id="siteTitle">Wzxy.me</h1>
+      <p class="bio" id="siteBio">ប្រព័ន្ធបង្កើតតំណភ្ជាប់ និងទូទាត់ប្រាក់ KHQR ស្វ័យប្រវត្តិ</p>
+      <div class="links-grid" id="linksList"></div>
+    </div>
+
+    <!-- ផ្នែកបង្កើតកូដទូទាត់ KHQR និងតំណភ្ជាប់ /api/khqr -->
+    <div class="glass-card">
+      <div class="section-title">
+        <span>បង្កើតកូដទូទាត់ KHQR</span>
+        <span style="font-size: 12px; color: #94a3b8;">/api/khqr</span>
+      </div>
+
+      <div class="bank-badges">
+        <span class="badge">Bakong</span>
+        <span class="badge">ABA PAY</span>
+        <span class="badge">ACLEDA</span>
+        <span class="badge">TrueMoney</span>
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>ចំនួនទឹកប្រាក់ (Amount)</label>
+          <input type="number" id="payAmount" placeholder="0.00" step="0.01" value="1.00">
+        </div>
+        <div class="form-group">
+          <label>រូបិយប័ណ្ណ</label>
+          <select id="payCurrency">
+            <option value="USD">USD ($)</option>
+            <option value="KHR">KHR (៛)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>លេខវិក្កយបត្រ ឬចំណាំ (Bill / Note)</label>
+        <input type="text" id="payNote" placeholder="ឧ. INV-001">
+      </div>
+
+      <button class="btn-primary" onclick="generateKHQR()">បង្កើត QR និងតំណភ្ជាប់ URL</button>
+
+      <div class="qr-wrapper" id="qrBox">
+        <div class="qr-header">KHQR PAYMENT</div>
+        <div id="qrMerchant" style="font-weight: 700; font-size: 15px; margin-bottom: 4px;">Wzxy.me</div>
+        <div class="qr-amount" id="qrDisplayAmount">$1.00</div>
+        <div id="qrcode"></div>
+        <div style="font-size: 12px; color: #64748b;">ស្កេនតាមរយៈ Bakong, ABA, ACLEDA ឬ TrueMoney</div>
+      </div>
+
+      <div class="url-box" id="shareUrlBox" onclick="copyShareUrl()"></div>
+    </div>
+
+    <!-- ផ្នែកគ្រប់គ្រង និងកែប្រែគេហទំព័រផ្ទាល់ -->
+    <div class="glass-card">
+      <button class="btn-secondary" onclick="toggleEdit()">⚙️ កែប្រែ ឬបន្ថែមទិន្នន័យក្នុង Website</button>
+
+      <div class="edit-panel" id="editPanel">
+        <div class="form-group">
+          <label>ឈ្មោះគេហទំព័រ (Title)</label>
+          <input type="text" id="editTitle">
+        </div>
+        <div class="form-group">
+          <label>ការពិពណ៌នា (Bio)</label>
+          <input type="text" id="editBio">
+        </div>
+        <div class="form-group">
+          <label>គណនីទទួលប្រាក់ Bakong / ABA ID</label>
+          <input type="text" id="editBakongId" placeholder="ឧ. wzxy@abaa">
+        </div>
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 14px 0;">
+        <div class="form-group">
+          <label>បន្ថែមប៊ូតុងតំណភ្ជាប់ថ្មី (ឈ្មោះប៊ូតុង)</label>
+          <input type="text" id="newLinkName" placeholder="ឧ. Telegram Channel">
+        </div>
+        <div class="form-group">
+          <label>តំណភ្ជាប់ (URL Link)</label>
+          <input type="url" id="newLinkUrl" placeholder="https://t.me/yourusername">
+        </div>
+        <button class="btn-primary" onclick="saveSettings()">រក្សាទុកការកែប្រែ</button>
+      </div>
+    </div>
+
+    <div class="footer-bar">© 2026 Wzxy.me • Powered by GitHub Pages</div>
+  </div>
+
+  <script>
+    // ទិន្នន័យដើមរបស់គេហទំព័រ (អ្នកអាចកែត្រង់នេះក្នុងកូដ ឬកែផ្ទាល់លើវេបសាយក៏បាន)
+    const defaultConfig = {
+      title: "Wzxy.me",
+      bio: "ប្រព័ន្ធបង្កើតតំណភ្ជាប់ និងទូទាត់ប្រាក់ KHQR (Bakong, ABA, ACLEDA, TrueMoney)",
+      bakongId: "wzxy@abaa",
+      links: [
+        { name: "💬 ទំនាក់ទំនងតាម Telegram", url: "https://t.me/wzxy_dark" },
+        { name: "🌐 ទំព័រ Facebook ផ្លូវការ", url: "https://facebook.com/" },
+        { name: "⚡ API Documentation (/api/khqr)", url: "?amount=5.00&currency=USD&note=APIOrder" }
+      ]
+    };
+
+    let siteData = JSON.parse(localStorage.getItem("wzxy_site_data")) || defaultConfig;
+
+    function renderSite() {
+      document.getElementById("siteTitle").innerText = siteData.title;
+      document.getElementById("avatarText").innerText = siteData.title.charAt(0).toUpperCase();
+      document.getElementById("siteBio").innerText = siteData.bio;
+      document.getElementById("qrMerchant").innerText = siteData.title;
+
+      const list = document.getElementById("linksList");
+      list.innerHTML = "";
+      siteData.links.forEach((item, index) => {
+        const a = document.createElement("a");
+        a.className = "link-btn";
+        a.href = item.url;
+        a.innerHTML = `<span>${item.name}</span><span>→</span>`;
+        list.appendChild(a);
+      });
+
+      document.getElementById("editTitle").value = siteData.title;
+      document.getElementById("editBio").value = siteData.bio;
+      document.getElementById("editBakongId").value = siteData.bakongId;
+    }
+
+    function generateKHQR() {
+      const amount = parseFloat(document.getElementById("payAmount").value || "1").toFixed(2);
+      const currency = document.getElementById("payCurrency").value;
+      const note = document.getElementById("payNote").value || "WZXY";
+      const currencyCode = currency === "USD" ? "840" : "116";
+      const displayAmt = currency === "USD" ? `$${amount}` : `${parseInt(amount)} ៛`;
+
+      document.getElementById("qrDisplayAmount").innerText = displayAmt;
+      document.getElementById("qrBox").style.display = "flex";
+
+      const qrContainer = document.getElementById("qrcode");
+      qrContainer.innerHTML = "";
+
+      const payload = `00020101021229300016${siteData.bakongId}520459995303${currencyCode}540${amount.length}${amount}5802KH5907${siteData.title}6010Phnom Penh62100106${note}6304`;
+      new QRCode(qrContainer, { text: payload, width: 180, height: 180 });
+
+      const shareUrl = `${window.location.origin}${window.location.pathname}?amount=${amount}&currency=${currency}&note=${encodeURIComponent(note)}`;
+      const urlBox = document.getElementById("shareUrlBox");
+      urlBox.style.display = "block";
+      urlBox.innerText = `🔗 ចុចចម្លងតំណភ្ជាប់ទូទាត់ប្រាក់៖ ${shareUrl}`;
+      urlBox.dataset.url = shareUrl;
+    }
+
+    function copyShareUrl() {
+      const url = document.getElementById("shareUrlBox").dataset.url;
+      navigator.clipboard.writeText(url);
+      alert("បានចម្លងតំណភ្ជាប់ URL រួចរាល់!");
+    }
+
+    function toggleEdit() {
+      const panel = document.getElementById("editPanel");
+      panel.style.display = panel.style.display === "block" ? "none" : "block";
+    }
+
+    function saveSettings() {
+      siteData.title = document.getElementById("editTitle").value || "Wzxy.me";
+      siteData.bio = document.getElementById("editBio").value;
+      siteData.bakongId = document.getElementById("editBakongId").value || "wzxy@abaa";
+
+      const newName = document.getElementById("newLinkName").value.trim();
+      const newUrl = document.getElementById("newLinkUrl").value.trim();
+      if (newName && newUrl) {
+        siteData.links.push({ name: newName, url: newUrl });
+        document.getElementById("newLinkName").value = "";
+        document.getElementById("newLinkUrl").value = "";
+      }
+
+      localStorage.setItem("wzxy_site_data", JSON.stringify(siteData));
+      renderSite();
+      toggleEdit();
+      alert("រក្សាទុកការកែប្រែរួចរាល់!");
+    }
+
+    // ពិនិត្យមើលតំណភ្ជាប់ URL ស្វ័យប្រវត្តិ (ឧ. ?amount=10&currency=USD)
+    window.addEventListener("DOMContentLoaded", () => {
+      renderSite();
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("amount")) {
+        document.getElementById("payAmount").value = params.get("amount");
+        if (params.has("currency")) document.getElementById("payCurrency").value = params.get("currency");
+        if (params.has("note")) document.getElementById("payNote").value = params.get("note");
+        generateKHQR();
+      }
+    });
+  </script>
+</body>
+</html>
