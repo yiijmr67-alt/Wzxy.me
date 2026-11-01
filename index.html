@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wzxy.me — KHQR API & Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0a0b10',
+                        glass: 'rgba(255, 255, 255, 0.05)',
+                        glassBorder: 'rgba(255, 255, 255, 0.1)',
+                        accent: '#6366f1',
+                        accentHover: '#4f46e5',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRCode Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050508;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(14, 165, 233, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #f3f4f6;
+        }
+        .glass-card {
+            background: rgba(18, 20, 31, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050508;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full opacity-0 transition-all duration-300 ease-in-out glass-card px-4 py-3 rounded-xl flex items-center space-x-3 text-sm border-l-4 border-indigo-500">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-indigo-400"></i>
+        <span id="toast-message" class="text-gray-200 font-medium">Action completed successfully!</span>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="w-full max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-bolt text-white text-lg"></i>
+            </div>
+            <div>
+                <span class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-gray-200 to-indigo-300 bg-clip-text text-transparent">Wzxy.me</span>
+                <span class="block text-xs text-indigo-400 font-medium">KHQR API Gateway & Hub</span>
+            </div>
+        </div>
+        <nav class="hidden md:flex items-center space-x-6 text-sm text-gray-400 font-medium">
+            <a href="#playground" class="hover:text-white transition">API Playground</a>
+            <a href="#bento" class="hover:text-white transition">Bento Links</a>
+            <a href="#tools" class="hover:text-white transition">Price Calc</a>
+            <a href="#docs" class="hover:text-white transition">API Docs</a>
+        </nav>
+        <div class="flex items-center space-x-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-400 animate-pulse"></span> API Online
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="w-full max-w-6xl mx-auto px-4 py-4 flex-grow space-y-12">
+
+        <!-- Hero Intro Section -->
+        <section class="text-center space-y-4 py-8">
+            <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full glass-card text-xs text-indigo-300 mb-2">
+                <i class="fa-solid fa-code-branch"></i>
+                <span>v2.4 Live Bakong / ABA KHQR Endpoint</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white max-w-3xl mx-auto leading-tight">
+                Instant National QR Payments & <span class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Developer Hub</span>
+            </h1>
+            <p class="text-gray-400 text-sm md:text-base max-w-xl mx-auto">
+                Test Cambodian KHQR endpoints instantly, explore developer links, and calculate currency conversions in real-time through our sleek glassmorphism dashboard.
+            </p>
+        </section>
+
+        <!-- Interactive KHQR API Playground Section -->
+        <section id="playground" class="scroll-mt-24">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-qrcode text-indigo-400"></i>
+                        <span>POST /api/v1/khqr/generate</span>
+                    </h2>
+                    <p class="text-xs text-gray-400">Generate and test live EMVCo-compliant QR codes & deep links instantly</p>
+                </div>
+                <button onclick="fillSampleData()" class="text-xs px-3 py-1.5 rounded-lg glass-card hover:bg-white/10 text-indigo-300 transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Load Demo Data</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Request Input Form -->
+                <div class="lg:col-span-7 glass-card rounded-2xl p-6 space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-2">Request Body Parameters</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1">Amount</label>
+                            <div class="relative">
+                                <input type="number" id="input-amount" step="0.01" placeholder="10.00" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600">
+                                <span id="currency-symbol-label" class="absolute right-3 top-2.5 text-xs text-gray-400 font-semibold">USD</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1">Currency</label>
+                            <select id="input-currency" onchange="updateCurrencySymbol()" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm text-white bg-[#12141f]">
+                                <option value="USD">USD (United States Dollar)</option>
+                                <option value="KHR">KHR (Cambodian Riel)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1">Store / Merchant Name</label>
+                            <input type="text" id="input-store" placeholder="Wzxy Digital Store" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1">Bill / Invoice Number</label>
+                            <input type="text" id="input-bill" placeholder="INV-2026-001" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Merchant Account / Bakong ID</label>
+                        <input type="text" id="input-bakong" value="wzxy_merchant@bakong" class="w-full glass-input rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600">
+                    </div>
+
+                    <div class="pt-2">
+                        <button onclick="generateKHQR()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium text-sm shadow-lg shadow-indigo-600/30 transition transform active:scale-[0.99] flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-gears"></i>
+                            <span>Execute API Request</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Response & QR Display Output -->
+                <div class="lg:col-span-5 glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">API Response</h3>
+                            <span id="response-status" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-400">Waiting...</span>
+                        </div>
+
+                        <!-- QR Code Container -->
+                        <div id="qr-container" class="flex flex-col items-center justify-center p-6 rounded-xl bg-black/40 border border-white/5 min-h-[220px] relative">
+                            <div id="qrcode" class="bg-white p-3 rounded-lg shadow-xl hidden"></div>
+                            <div id="qr-placeholder" class="text-center text-gray-500 text-xs py-8 space-y-2">
+                                <i class="fa-solid fa-qrcode text-3xl mb-1 text-gray-600"></i>
+                                <p>Click "Execute API Request" to generate dynamic KHQR code.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons & verification status -->
+                    <div id="response-actions" class="space-y-3 hidden">
+                        <div class="flex items-center justify-between text-xs bg-white/5 p-3 rounded-xl border border-white/5">
+                            <span class="text-gray-400">Transaction Status:</span>
+                            <span id="payment-status-badge" class="px-2.5 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending Verification</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="simulatePayment()" class="py-2.5 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-medium border border-emerald-500/30 transition flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-check-circle"></i>
+                                <span>Simulate Pay</span>
+                            </button>
+                            <button onclick="copyQRString()" class="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-medium border border-white/10 transition flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Copy Payload</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bento Grid Social Link Aggregator -->
+        <section id="bento" class="scroll-mt-24 space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-layer-group text-purple-400"></i>
+                        <span>Bento Link Aggregator</span>
+                    </h2>
+                    <p class="text-xs text-gray-400">Explore Wzxy's verified network, channels, and developer socials</p>
+                </div>
+            </div>
+
+            <!-- Bento Grid Container -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                
+                <!-- Bento Box 1: Profile Main Card (Span 2) -->
+                <div class="md:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition duration-500"></div>
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 p-0.5 shadow-lg">
+                                <div class="w-full h-full bg-[#12141f] rounded-[14px] flex items-center justify-center text-xl font-bold text-white">
+                                    W
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Wzxy Developer</h3>
+                                <p class="text-xs text-indigo-400 font-medium">Full-Stack & Payment Gateway Integrator</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Available for Hire</span>
+                    </div>
+                    <p class="text-gray-300 text-xs mt-4 leading-relaxed">
+                        Specialized in building automated Telegram bots, Bakong KHQR microservices, secure financial APIs, and lightning-fast web interfaces.
+                    </p>
+                    <div class="flex items-center space-x-3 mt-6 pt-4 border-t border-white/5">
+                        <a href="https://t.me/wzxy_dark" target="_blank" class="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium text-center transition flex items-center justify-center space-x-2">
+                            <i class="fa-brands fa-telegram"></i>
+                            <span>Telegram Chat</span>
+                        </a>
+                        <a href="https://github.com/" target="_blank" class="flex-1 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-medium text-center border border-white/10 transition flex items-center justify-center space-x-2">
+                            <i class="fa-brands fa-github"></i>
+                            <span>GitHub Profile</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bento Box 2: Quick Stat Card -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-gray-400">
+                        <span class="text-xs font-semibold uppercase tracking-wider">Uptime</span>
+                        <i class="fa-solid fa-server text-emerald-400"></i>
+                    </div>
+                    <div class="my-4">
+                        <h4 class="text-3xl font-extrabold text-white">99.98%</h4>
+                        <p class="text-xs text-emerald-400 mt-1"><i class="fa-solid fa-arrow-up"></i> All API nodes operational</p>
+                    </div>
+                    <span class="text-[10px] text-gray-500">Monitored globally in real-time</span>
+                </div>
+
+                <!-- Bento Box 3: Response Speed -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-gray-400">
+                        <span class="text-xs font-semibold uppercase tracking-wider">Latency</span>
+                        <i class="fa-solid fa-bolt text-amber-400"></i>
+                    </div>
+                    <div class="my-4">
+                        <h4 class="text-3xl font-extrabold text-white">42ms</h4>
+                        <p class="text-xs text-amber-400 mt-1"><i class="fa-solid fa-gauge-high"></i> Ultra-fast edge response</p>
+                    </div>
+                    <span class="text-[10px] text-gray-500">Phnom Penh & SG Regional Servers</span>
+                </div>
+
+                <!-- Bento Box 4: Channel Link -->
+                <a href="https://t.me/" target="_blank" class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-lg">
+                            <i class="fa-brands fa-telegram"></i>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-gray-500 group-hover:text-white transition"></i>
+                    </div>
+                    <div class="my-4">
+                        <h4 class="text-sm font-bold text-white">Telegram Channel</h4>
+                        <p class="text-xs text-gray-400 mt-1">Join our community for source codes, API updates, and developer drops.</p>
+                    </div>
+                    <span class="text-xs text-sky-400 font-medium">@wzxy_channel &rarr;</span>
+                </a>
+
+                <!-- Bento Box 5: Documentation Link -->
+                <a href="#docs" class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition group">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-gray-500 group-hover:text-white transition"></i>
+                    </div>
+                    <div class="my-4">
+                        <h4 class="text-sm font-bold text-white">API Documentation</h4>
+                        <p class="text-xs text-gray-400 mt-1">Complete SDK wrappers for Python, Node.js, and PHP.</p>
+                    </div>
+                    <span class="text-xs text-purple-400 font-medium">Read Docs &rarr;</span>
+                </a>
+
+                <!-- Bento Box 6: Support / Donate (Span 2) -->
+                <div class="md:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between bg-gradient-to-br from-indigo-950/40 to-purple-950/40">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-pink-500/10 text-pink-400 flex items-center justify-center">
+                                <i class="fa-solid fa-mug-hot"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Support Open Source</h4>
+                                <p class="text-xs text-gray-400">Buy me a coffee or sponsor API maintenance.</p>
+                            </div>
+                        </div>
+                        <button onclick="quickDonate(5)" class="px-3 py-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 text-white text-xs font-semibold shadow-md transition">
+                            Donate $5.00
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Dynamic Price Calculation & Currency Converter Section -->
+        <section id="tools" class="scroll-mt-24">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-calculator text-emerald-400"></i>
+                        <span>KHQR Dynamic Price Calculator</span>
+                    </h2>
+                    <p class="text-xs text-gray-400">Convert USD and Cambodian Riel (KHR) instantly with fixed exchange rate (1 USD = 4,100 KHR)</p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 max-w-2xl mx-auto space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-2">Amount in USD ($)</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-3 text-sm text-gray-500">$</span>
+                            <input type="number" id="calc-usd" oninput="convertCurrency('usd')" value="10.00" step="0.5" class="w-full glass-input rounded-xl pl-8 pr-4 py-2.5 text-sm text-white placeholder-gray-600">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-2">Amount in KHR (៛)</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-3 text-sm text-gray-500">៛</span>
+                            <input type="number" id="calc-khr" oninput="convertCurrency('khr')" value="41000" step="1000" class="w-full glass-input rounded-xl pl-8 pr-4 py-2.5 text-sm text-white placeholder-gray-600">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-black/30 border border-white/5 flex items-center justify-between text-xs">
+                    <span class="text-gray-400">Exchange Rate Preset:</span>
+                    <span class="font-semibold text-emerald-400">1 USD = 4,100 KHR (National Bank Standard)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Documentation Quick Snippet -->
+        <section id="docs" class="scroll-mt-24 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-code text-indigo-400"></i>
+                        <span>Quick Python Integration Snippet</span>
+                    </h2>
+                    <p class="text-xs text-gray-400">Integrate Wzxy KHQR API into your backend in seconds</p>
+                </div>
+                <button onclick="copyCodeSnippet()" class="text-xs px-3 py-1.5 rounded-lg glass-card hover:bg-white/10 text-gray-300 transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>Copy Code</span>
+                </button>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 overflow-x-auto bg-[#0d0e15] border border-white/10">
+                <pre class="text-xs text-indigo-200 font-mono leading-relaxed"><span class="text-purple-400">import</span> requests
+
+url = <span class="text-emerald-300">"https://wzxy.me/api/v1/khqr/generate"</span>
+payload = {
+    <span class="text-emerald-300">"amount"</span>: <span class="text-amber-300">15.00</span>,
+    <span class="text-emerald-300">"currency"</span>: <span class="text-emerald-300">"USD"</span>,
+    <span class="text-emerald-300">"store_name"</span>: <span class="text-emerald-300">"Wzxy Store"</span>,
+    <span class="text-emerald-300">"bill_number"</span>: <span class="text-emerald-300">"INV-9928"</span>
+}
+
+response = requests.post(url, json=payload)
+print(response.json())</pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-6xl mx-auto px-4 py-8 mt-12 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500">
+        <p>&copy; 2026 Wzxy.me. All rights reserved. Built with sleek glassmorphism.</p>
+        <div class="flex items-center space-x-6 mt-4 sm:mt-0">
+            <a href="#" class="hover:text-gray-300 transition">Privacy Policy</a>
+            <a href="#" class="hover:text-gray-300 transition">Terms of Service</a>
+            <a href="#" class="hover:text-gray-300 transition">API Status</a>
+        </div>
+    </footer>
+
+    <!-- JavaScript Interactive Logic -->
+    <script>
+        let currentPayload = "";
+
+        // Toast Notification Function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = message;
+            if (type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-indigo-400";
+            } else {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400";
+            }
+
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 3000);
+        }
+
+        // Fill Sample Data for Playground
+        function fillSampleData() {
+            document.getElementById('input-amount').value = "25.00";
+            document.getElementById('input-currency').value = "USD";
+            document.getElementById('input-store').value = "Wzxy Cloud Hub";
+            document.getElementById('input-bill').value = "INV-" + Math.floor(1000 + Math.random() * 9000);
+            updateCurrencySymbol();
+            showToast("Sample data loaded successfully!");
+        }
+
+        function updateCurrencySymbol() {
+            const currency = document.getElementById('input-currency').value;
+            document.getElementById('currency-symbol-label').innerText = currency;
+        }
+
+        // Generate KHQR Code
+        function generateKHQR() {
+            const amount = document.getElementById('input-amount').value;
+            const currency = document.getElementById('input-currency').value;
+            const store = document.getElementById('input-store').value || "Wzxy Store";
+            const bill = document.getElementById('input-bill').value || "INV-001";
+            const bakongId = document.getElementById('input-bakong').value || "wzxy@bakong";
+
+            if (!amount || amount <= 0) {
+                showToast("Please enter a valid amount greater than 0", "error");
+                return;
+            }
+
+            // Construct mock EMVCo KHQR String
+            currentPayload = `00020101021230370016com.bakong.khqr@${bakongId}013${bill}520459995303${currency === 'USD' ? '840' : '116'}5802KH5910${store}6006Phnom Penh6304`;
+
+            // Render QR Code
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = "";
+            qrDiv.classList.remove('hidden');
+            document.getElementById('qr-placeholder').classList.add('hidden');
+
+            new QRCode(qrDiv, {
+                text: currentPayload,
+                width: 180,
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            // Update Status Badges
+            document.getElementById('response-status').innerText = "200 OK (0.04s)";
+            document.getElementById('response-status').className = "px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            
+            const badge = document.getElementById('payment-status-badge');
+            badge.innerText = "Pending Verification";
+            badge.className = "px-2.5 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
+
+            document.getElementById('response-actions').classList.remove('hidden');
+            showToast("KHQR Generated Successfully!");
+        }
+
+        // Simulate Payment Verification
+        function simulatePayment() {
+            const badge = document.getElementById('payment-status-badge');
+            badge.innerText = "Paid Successfully (Verified)";
+            badge.className = "px-2.5 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            showToast("Payment webhook verified successfully!");
+        }
+
+        // Copy QR Payload
+        function copyQRString() {
+            if (!currentPayload) return;
+            const textArea = document.createElement("textarea");
+            textArea.value = currentPayload;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("KHQR payload copied to clipboard!");
+            } catch (err) {
+                showToast("Failed to copy payload", "error");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Copy Code Snippet
+        function copyCodeSnippet() {
+            const snippet = `import requests\n\nurl = "https://wzxy.me/api/v1/khqr/generate"\npayload = {\n    "amount": 15.00,\n    "currency": "USD",\n    "store_name": "Wzxy Store",\n    "bill_number": "INV-9928"\n}\n\nresponse = requests.post(url, json=payload)\nprint(response.json())`;
+            const textArea = document.createElement("textarea");
+            textArea.value = snippet;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Python snippet copied to clipboard!");
+            } catch (err) {
+                showToast("Failed to copy", "error");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Quick Donate Button
+        function quickDonate(amount) {
+            document.getElementById('input-amount').value = amount.toFixed(2);
+            document.getElementById('input-currency').value = "USD";
+            document.getElementById('input-store').value = "Wzxy Support Fund";
+            document.getElementById('input-bill').value = "DONATE-" + Math.floor(100 + Math.random() * 900);
+            updateCurrencySymbol();
+            generateKHQR();
+            document.getElementById('playground').scrollIntoView({ behavior: 'smooth' });
+            showToast(`Donation KHQR generated for $${amount}.00!`);
+        }
+
+        // Currency Converter Logic
+        function convertCurrency(source) {
+            const rate = 4100;
+            const usdInput = document.getElementById('calc-usd');
+            const khrInput = document.getElementById('calc-khr');
+
+            if (source === 'usd') {
+                const usd = parseFloat(usdInput.value) || 0;
+                khrInput.value = (usd * rate).toFixed(0);
+            } else {
+                const khr = parseFloat(khrInput.value) || 0;
+                usdInput.value = (khr / rate).toFixed(2);
+            }
+        }
+    </script>
+</body>
+</html>
